@@ -385,12 +385,23 @@ class MarketMarkovAnalysis:
         # Test prediction accuracy
         _, accuracy = self.predict_and_validate()
 
+        # Convert chi-square results to JSON-serializable format
+        chi_square_json = {}
+        if self.chi_square_results:
+            for lag, result in self.chi_square_results.items():
+                chi_square_json[lag] = {
+                    'chi2': float(result['chi2']),
+                    'p_value': float(result['p_value']),
+                    'dof': int(result['dof']),
+                    'markov_property_holds': bool(result['markov_property_holds'])
+                }
+
         # Prepare results
         results = {
             'transition_matrix': self.transition_matrix.to_dict(),
             'state_distribution': self.state_counts.to_dict(),
             'stationary_dist': self.stationary_dist.to_dict(),
-            'chi_square_results': self.chi_square_results,
+            'chi_square_results': chi_square_json,
             'prediction_accuracy': round(accuracy * 100, 1)
         }
 
