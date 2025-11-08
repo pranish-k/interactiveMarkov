@@ -293,8 +293,8 @@ function displayTestResults(data) {
     if (data.chi_square_results && data.chi_square_results.Lag_2) {
         const pValue = data.chi_square_results.Lag_2.p_value;
         const passes = pValue > 0.05;
-        markovResult.innerHTML = `<span style="color: ${passes ? '#2ecc71' : '#e74c3c'}">
-            ${passes ? 'PASSES' : 'FAILS'} (p = ${pValue.toFixed(3)})
+        markovResult.innerHTML = `<span style="color: ${passes ? '#2ecc71' : '#e67e22'}">
+            ${passes ? 'HOLDS' : 'REJECTED'} (p = ${pValue.toFixed(3)})
         </span>`;
     }
 
@@ -333,15 +333,15 @@ function updateInsights(data, bullThreshold, bearThreshold) {
     if (data.chi_square_results && data.chi_square_results.Lag_2) {
         const pValue = data.chi_square_results.Lag_2.p_value;
         const passes = pValue > 0.05;
-        const icon = passes ? 'fa-check-circle' : 'fa-info-circle';
-        const color = passes ? '#2ecc71' : '#3498db';
+        const icon = passes ? 'fa-check-circle' : 'fa-times-circle';
+        const color = passes ? '#2ecc71' : '#e67e22';
         insights += `<div class="insight-item">`;
         insights += `<i class="fas ${icon}" style="color: ${color}"></i>`;
         insights += `<div><strong>Markov Property Test:</strong> `;
         if (passes) {
-            insights += `Supports independence (p = ${pValue.toFixed(3)}) - Current and past states appear independent, suggesting Markov property holds.`;
+            insights += `Supports Markov property (p = ${pValue.toFixed(3)}) - States appear independent beyond lag-1, suggesting first-order Markov chain applies.`;
         } else {
-            insights += `Shows dependence (p = ${pValue.toFixed(3)}) - This is normal! Real markets have complex dependencies beyond simple one-step memory.`;
+            insights += `Rejects Markov property (p = ${pValue.toFixed(3)}) - Markets have memory beyond one step. Real markets are too complex for simple first-order Markov models.`;
         }
         insights += '</div>';
         insights += '</div>';
