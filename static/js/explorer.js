@@ -3,6 +3,33 @@
 let stateChart = null;
 let matrixChart = null;
 
+// Utility functions
+function showError(message) {
+    alert('Error: ' + message);
+}
+
+function showSuccess(message) {
+    console.log('Success: ' + message);
+}
+
+function showLoading(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'block';
+}
+
+function hideLoading(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+}
+
+async function fetchAPI(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error('API request failed');
+    }
+    return await response.json();
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     initializeExplorer();
