@@ -331,26 +331,38 @@ function updateInsights(data, bullThreshold, bearThreshold) {
 
     // Markov property
     if (data.chi_square_results && data.chi_square_results.Lag_2) {
-        const passes = data.chi_square_results.Lag_2.p_value > 0.05;
-        const icon = passes ? 'fa-check-circle' : 'fa-times-circle';
-        const color = passes ? '#2ecc71' : '#e74c3c';
+        const pValue = data.chi_square_results.Lag_2.p_value;
+        const passes = pValue > 0.05;
+        const icon = passes ? 'fa-check-circle' : 'fa-info-circle';
+        const color = passes ? '#2ecc71' : '#3498db';
         insights += `<div class="insight-item">`;
         insights += `<i class="fas ${icon}" style="color: ${color}"></i>`;
-        insights += `<div><strong>Markov Property:</strong> ${passes ? 'Holds' : 'Does not hold'} - `;
-        insights += `The market ${passes ? 'exhibits one-week memory' : 'lacks short-term memory'} `;
-        insights += `(p = ${data.chi_square_results.Lag_2.p_value.toFixed(3)})</div>`;
+        insights += `<div><strong>Markov Property Test:</strong> `;
+        if (passes) {
+            insights += `Supports independence (p = ${pValue.toFixed(3)}) - Current and past states appear independent, suggesting Markov property holds.`;
+        } else {
+            insights += `Shows dependence (p = ${pValue.toFixed(3)}) - This is normal! Real markets have complex dependencies beyond simple one-step memory.`;
+        }
+        insights += '</div>';
         insights += '</div>';
     }
 
     // Prediction accuracy
-    if (data.prediction_accuracy !== undefined) {
+    if (data.prediction_accuracy !== undefined && data.state_distribution) {
         const accuracy = data.prediction_accuracy;
-        const icon = accuracy > 40 ? 'fa-star' : 'fa-exclamation-triangle';
-        const color = accuracy > 40 ? '#2ecc71' : accuracy > 30 ? '#f39c12' : '#e74c3c';
+        const total = Object.values(data.state_distribution).reduce((a, b) => a + b, 0);
+        const baseline = Object.values(data.state_distribution).reduce((sum, count) => {
+            return sum + Math.pow(count / total, 2);
+        }, 0) * 100;
+        const improvement = accuracy - baseline;
+
+        const icon = improvement > 20 ? 'fa-star' : improvement > 10 ? 'fa-chart-line' : 'fa-exclamation-triangle';
+        const color = improvement > 20 ? '#2ecc71' : improvement > 10 ? '#3498db' : '#f39c12';
         insights += `<div class="insight-item">`;
         insights += `<i class="fas ${icon}" style="color: ${color}"></i>`;
-        insights += `<div><strong>Prediction Accuracy:</strong> ${accuracy}% - `;
-        insights += `${accuracy < 40 ? 'Poor predictive power despite statistical validity' : 'Moderate predictive capability'}</div>`;
+        insights += `<div><strong>Prediction Accuracy:</strong> ${accuracy}% vs ${baseline.toFixed(1)}% baseline (random) - `;
+        insights += `Only ${improvement.toFixed(1)}% improvement shows weak predictive power, `;
+        insights += `demonstrating that markets change over time (time homogeneity failure).</div>`;
         insights += '</div>';
     }
 
@@ -368,7 +380,20 @@ function updateInsights(data, bullThreshold, bearThreshold) {
 
     insights += '<div class="insight-takeaway">';
     insights += '<i class="fas fa-graduation-cap"></i>';
-    insights += '<div><strong>Key Takeaway:</strong> Regardless of threshold settings, markets exhibit short-term memory (Markov property) but changing dynamics over time prevent accurate long-term predictions (time homogeneity failure).</div>';
+    insights += '<div><strong>Key Takeaway:</strong> ';
+
+    // Calculate improvement over random baseline
+    if (data.state_distribution) {
+        const total = Object.values(data.state_distribution).reduce((a, b) => a + b, 0);
+        const baseline = Object.values(data.state_distribution).reduce((sum, count) => {
+            return sum + Math.pow(count / total, 2);
+        }, 0) * 100;
+        const improvement = accuracy - baseline;
+
+        insights += `The model's ${accuracy}% accuracy vs ${baseline.toFixed(1)}% baseline (random guessing) shows only ${improvement.toFixed(1)}% improvement. `;
+    }
+
+    insights += 'Markets exhibit some short-term patterns, but changing dynamics over time prevent reliable long-term predictions (time homogeneity failure).</div>';
     insights += '</div>';
 
     insights += '</div>';
