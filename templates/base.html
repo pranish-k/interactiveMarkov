@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Interactive Markov Market Analysis{% endblock %}</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-chart-line"></i>
+                <span>Markov Market Analysis</span>
+            </div>
+            <div class="nav-menu">
+                <a href="/" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="/explorer" class="nav-link {% if request.endpoint == 'explorer' %}active{% endif %}">
+                    <i class="fas fa-sliders-h"></i> Explorer
+                </a>
+                <a href="/game" class="nav-link {% if request.endpoint == 'game' %}active{% endif %}">
+                    <i class="fas fa-gamepad"></i> Game
+                </a>
+                <a href="/periods" class="nav-link {% if request.endpoint == 'periods' %}active{% endif %}">
+                    <i class="fas fa-clock"></i> Time Periods
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <strong>Research by:</strong> Pranish Khanal
+            </div>
+            <div class="footer-section">
+                <strong>Faculty Sponsor:</strong> Prof. Kenneth McMurdy
+            </div>
+            <div class="footer-section">
+                <strong>Institution:</strong> Ramapo College
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Conference Presentation Tool | S&P 500 Analysis (2015-2024)</p>
+        </div>
+    </footer>
+
+    <!-- Base JavaScript -->
+    <script>
+        // Global configuration
+        const API_BASE_URL = window.location.origin;
+
+        // Utility functions
+        function showLoading(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = '<div class="loader"></div>';
+            }
+        }
+
+        function hideLoading(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = '';
+            }
+        }
+
+        function showError(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-error';
+            alertDiv.textContent = message;
+            document.body.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success';
+            alertDiv.textContent = message;
+            document.body.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        // Fetch wrapper with error handling
+        async function fetchAPI(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    ...options,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                showError('An error occurred. Please try again.');
+                throw error;
+            }
+        }
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

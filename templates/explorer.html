@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Parameter Explorer - Interactive Markov Market Analysis{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="page-header">
+        <h1><i class="fas fa-sliders-h"></i> Live Parameter Explorer</h1>
+        <p>Adjust market state thresholds to see how classification affects the Markov analysis</p>
+    </section>
+
+    <!-- Parameter Controls -->
+    <section class="parameter-controls">
+        <div class="controls-card">
+            <h3>Threshold Parameters</h3>
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i>
+                <p>Market states are classified based on weekly returns: Bull (positive above threshold),
+                   Bear (negative below threshold), and Stagnant (in between).</p>
+            </div>
+
+            <div class="slider-container">
+                <label for="bullThreshold">
+                    Bull Market Threshold:
+                    <span id="bullValue" class="threshold-value">1.5%</span>
+                </label>
+                <input type="range" id="bullThreshold" min="0.5" max="3.0" step="0.1" value="1.5">
+                <div class="slider-labels">
+                    <span>0.5%</span>
+                    <span>3.0%</span>
+                </div>
+            </div>
+
+            <div class="slider-container">
+                <label for="bearThreshold">
+                    Bear Market Threshold:
+                    <span id="bearValue" class="threshold-value">-1.5%</span>
+                </label>
+                <input type="range" id="bearThreshold" min="-3.0" max="-0.5" step="0.1" value="-1.5">
+                <div class="slider-labels">
+                    <span>-3.0%</span>
+                    <span>-0.5%</span>
+                </div>
+            </div>
+
+            <button id="updateAnalysis" class="btn btn-primary">
+                <i class="fas fa-sync-alt"></i> Update Analysis
+            </button>
+        </div>
+    </section>
+
+    <!-- Results Dashboard -->
+    <section class="results-dashboard">
+        <!-- State Distribution -->
+        <div class="result-card">
+            <h3>State Distribution</h3>
+            <canvas id="stateChart"></canvas>
+            <div id="stateStats" class="stats-text"></div>
+        </div>
+
+        <!-- Transition Matrix -->
+        <div class="result-card">
+            <h3>Transition Matrix</h3>
+            <canvas id="matrixChart"></canvas>
+            <div id="matrixStats" class="stats-text"></div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="result-card">
+            <h3>Statistical Tests</h3>
+            <div id="testResults" class="test-results">
+                <div class="test-item">
+                    <span class="test-label">Markov Property (χ² test):</span>
+                    <span id="markovResult" class="test-value">-</span>
+                </div>
+                <div class="test-item">
+                    <span class="test-label">Stationary Distribution:</span>
+                    <div id="stationaryDist" class="test-value">-</div>
+                </div>
+                <div class="test-item">
+                    <span class="test-label">Prediction Accuracy:</span>
+                    <span id="accuracyResult" class="test-value">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Insights -->
+        <div class="result-card full-width">
+            <h3>Key Insights</h3>
+            <div id="insights" class="insights-box">
+                <p>Adjust the thresholds and click "Update Analysis" to see how different market state
+                   definitions affect the Markov chain properties and prediction accuracy.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+        <div class="loader"></div>
+        <p>Analyzing market data...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/explorer.js') }}"></script>
+{% endblock %}

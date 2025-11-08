@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - Interactive Markov Market Analysis{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="page-header">
+        <h1><i class="fas fa-user-shield"></i> Admin Panel</h1>
+        <p>Conference presenter dashboard</p>
+    </section>
+
+    <section class="admin-stats">
+        <h3>Session Statistics</h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-value">{{ stats.active_sessions }}</div>
+                <div class="stat-label">Active Sessions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-dice"></i></div>
+                <div class="stat-value">{{ stats.total_rounds }}</div>
+                <div class="stat-label">Total Game Rounds</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
+                <div class="stat-value">{{ "%.1f"|format(stats.avg_player_score) }}</div>
+                <div class="stat-label">Avg Player Score</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-robot"></i></div>
+                <div class="stat-value">{{ "%.1f"|format(stats.avg_model_score) }}</div>
+                <div class="stat-label">Avg Model Score</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="admin-controls">
+        <h3>Controls</h3>
+        <button class="btn btn-primary" onclick="refreshStats()">
+            <i class="fas fa-sync"></i> Refresh Stats
+        </button>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function refreshStats() {
+    location.reload();
+}
+
+// Auto-refresh every 30 seconds
+setInterval(refreshStats, 30000);
+</script>
+{% endblock %}

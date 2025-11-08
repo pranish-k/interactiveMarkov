@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Game - Interactive Markov Market Analysis{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="page-header">
+        <h1><i class="fas fa-gamepad"></i> Market Prediction Game</h1>
+        <p>Test your intuition against the Markov model - Can you beat statistical probabilities?</p>
+    </section>
+
+    <!-- Game Stats Bar -->
+    <section class="game-stats">
+        <div class="stats-bar">
+            <div class="stat-box player">
+                <div class="stat-label">Your Score</div>
+                <div class="stat-score" id="playerScore">0</div>
+            </div>
+            <div class="stat-box model">
+                <div class="stat-label">Model Score</div>
+                <div class="stat-score" id="modelScore">0</div>
+            </div>
+            <div class="stat-box random">
+                <div class="stat-label">Random Score</div>
+                <div class="stat-score" id="randomScore">0</div>
+            </div>
+            <div class="stat-box rounds">
+                <div class="stat-label">Round</div>
+                <div class="stat-score" id="roundNumber">1 / 20</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game Board -->
+    <section class="game-board">
+        <!-- Current State Display -->
+        <div class="current-state-card">
+            <h3>Current Market State</h3>
+            <div id="currentStateDisplay" class="state-display">
+                <div class="state-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="state-name" id="currentState">Loading...</div>
+                <div class="state-return" id="currentReturn">-</div>
+            </div>
+            <div class="date-display" id="scenarioDate">Week of: -</div>
+        </div>
+
+        <!-- Transition Probabilities -->
+        <div class="probabilities-card">
+            <h3>Transition Probabilities</h3>
+            <div class="prob-bars" id="probabilityBars">
+                <div class="prob-item bull">
+                    <span class="prob-label">Bull</span>
+                    <div class="prob-bar-container">
+                        <div class="prob-bar" id="bullProb" style="width: 0%"></div>
+                        <span class="prob-value" id="bullProbValue">0%</span>
+                    </div>
+                </div>
+                <div class="prob-item bear">
+                    <span class="prob-label">Bear</span>
+                    <div class="prob-bar-container">
+                        <div class="prob-bar" id="bearProb" style="width: 0%"></div>
+                        <span class="prob-value" id="bearProbValue">0%</span>
+                    </div>
+                </div>
+                <div class="prob-item stagnant">
+                    <span class="prob-label">Stagnant</span>
+                    <div class="prob-bar-container">
+                        <div class="prob-bar" id="stagnantProb" style="width: 0%"></div>
+                        <span class="prob-value" id="stagnantProbValue">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prediction Buttons -->
+        <div class="prediction-section">
+            <h3>Make Your Prediction</h3>
+            <p>What will the market state be next week?</p>
+            <div class="prediction-buttons" id="predictionButtons">
+                <button class="pred-btn bull" onclick="makePrediction('Bull')">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>Bull Market</span>
+                </button>
+                <button class="pred-btn bear" onclick="makePrediction('Bear')">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>Bear Market</span>
+                </button>
+                <button class="pred-btn stagnant" onclick="makePrediction('Stagnant')">
+                    <i class="fas fa-minus"></i>
+                    <span>Stagnant</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Display -->
+        <div id="resultDisplay" class="result-display" style="display: none;">
+            <h3>Results</h3>
+            <div class="result-content">
+                <div class="result-item">
+                    <span class="result-label">Actual State:</span>
+                    <span class="result-value" id="actualState">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Your Prediction:</span>
+                    <span class="result-value" id="yourPrediction">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Model Prediction:</span>
+                    <span class="result-value" id="modelPrediction">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Random Prediction:</span>
+                    <span class="result-value" id="randomPrediction">-</span>
+                </div>
+            </div>
+            <div class="result-explanation" id="explanation"></div>
+            <button class="btn btn-primary" id="nextRoundBtn" onclick="loadNewScenario()">
+                Next Round <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- Game Instructions -->
+    <section class="game-instructions">
+        <div class="instructions-card">
+            <h4><i class="fas fa-question-circle"></i> How to Play</h4>
+            <ol>
+                <li>Observe the current market state and weekly return</li>
+                <li>Review the transition probabilities from historical data</li>
+                <li>Make your prediction for next week's market state</li>
+                <li>Compare your results with the Markov model and random baseline</li>
+                <li>Play 20 rounds to see if knowledge helps prediction!</li>
+            </ol>
+            <div class="tip">
+                <strong>Research Insight:</strong> Even with perfect knowledge of transition probabilities,
+                prediction accuracy remains poor due to time-varying market dynamics.
+            </div>
+        </div>
+    </section>
+
+    <!-- Game Over Modal -->
+    <div id="gameOverModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Game Complete!</h2>
+            <div class="final-scores">
+                <div class="score-row">
+                    <span>Your Score:</span>
+                    <span id="finalPlayerScore">0</span>
+                </div>
+                <div class="score-row">
+                    <span>Model Score:</span>
+                    <span id="finalModelScore">0</span>
+                </div>
+                <div class="score-row">
+                    <span>Random Score:</span>
+                    <span id="finalRandomScore">0</span>
+                </div>
+            </div>
+            <div class="game-conclusion">
+                <p id="gameConclusion"></p>
+            </div>
+            <button class="btn btn-primary" onclick="resetGame()">
+                <i class="fas fa-redo"></i> Play Again
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/game.js') }}"></script>
+{% endblock %}

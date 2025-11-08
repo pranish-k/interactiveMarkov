@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Interactive Markov Market Analysis{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1 class="hero-title">Interactive Markov Market Analysis</h1>
+        <p class="hero-subtitle">
+            Exploring the Markov Property in S&P 500 Market Behavior (2015-2024)
+        </p>
+        <div class="hero-description">
+            <p>
+                This interactive tool demonstrates empirical findings from comprehensive Markov chain analysis
+                of U.S. stock market behavior. Discover why markets exhibit the Markov property (one-week memory)
+                but fail time homogeneity, making them unpredictable despite being memoryless.
+            </p>
+        </div>
+    </section>
+
+    <!-- Key Finding Banner -->
+    <section class="key-finding">
+        <div class="finding-icon">
+            <i class="fas fa-lightbulb"></i>
+        </div>
+        <div class="finding-content">
+            <h3>Key Research Finding</h3>
+            <p>
+                Markets pass the Markov property test (χ² p-value > 0.05) indicating one-week memory,
+                but fail time homogeneity as transition probabilities change dramatically across periods,
+                resulting in poor prediction accuracy (~35%) despite statistically valid models.
+            </p>
+        </div>
+    </section>
+
+    <!-- Navigation Cards -->
+    <section class="nav-cards">
+        <div class="card-grid">
+            <!-- Parameter Explorer Card -->
+            <div class="nav-card" onclick="window.location.href='/explorer'">
+                <div class="card-icon">
+                    <i class="fas fa-sliders-h"></i>
+                </div>
+                <h3>Live Parameter Explorer</h3>
+                <p>
+                    Adjust bull and bear thresholds to see how market state classification changes.
+                    Observe transition matrices and test results update in real-time.
+                </p>
+                <div class="card-action">
+                    Explore Parameters <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+
+            <!-- Prediction Game Card -->
+            <div class="nav-card" onclick="window.location.href='/game'">
+                <div class="card-icon">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <h3>Market Prediction Game</h3>
+                <p>
+                    Test your intuition against the Markov model. Can you predict next week's market state
+                    better than statistical probabilities?
+                </p>
+                <div class="card-action">
+                    Play Game <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+
+            <!-- Time Period Card -->
+            <div class="nav-card" onclick="window.location.href='/periods'">
+                <div class="card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>Time Period Comparison</h3>
+                <p>
+                    Visualize how transition probabilities changed across four distinct market periods,
+                    revealing why time homogeneity fails.
+                </p>
+                <div class="card-action">
+                    Compare Periods <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="quick-stats">
+        <h3>Dataset Overview</h3>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value">S&P 500</div>
+                <div class="stat-label">Market Index</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">9+ Years</div>
+                <div class="stat-label">Analysis Period</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">~470 Weeks</div>
+                <div class="stat-label">Data Points</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">3 States</div>
+                <div class="stat-label">Market Classifications</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <h3>How This Tool Works</h3>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Explore Parameters</h4>
+                    <p>Adjust thresholds to see how different definitions affect market state classification</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Test Predictions</h4>
+                    <p>Play the prediction game to experience why probability-based forecasts fail</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Compare Periods</h4>
+                    <p>Visualize how market dynamics changed across different time periods</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Network Access Info -->
+    {% if local_ip %}
+    <section class="network-info">
+        <div class="info-box">
+            <h4><i class="fas fa-wifi"></i> Conference Network Access</h4>
+            <p>Other participants can access this tool on the local network at:</p>
+            <div class="network-url">http://{{ local_ip }}:5000</div>
+            <p class="info-note">Make sure all devices are connected to the same WiFi network</p>
+        </div>
+    </section>
+    {% endif %}
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="loader-large"></div>
+    <p>Loading market data...</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Page initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate cards on page load
+    const cards = document.querySelectorAll('.nav-card');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.classList.add('fade-in');
+        }, index * 100);
+    });
+
+    // Add hover effect to cards
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Fetch and display live stats
+    fetchLiveStats();
+});
+
+async function fetchLiveStats() {
+    try {
+        const stats = await fetchAPI('/api/stats');
+
+        // Update stats if available
+        if (stats.total_sessions > 0) {
+            const statsSection = document.createElement('div');
+            statsSection.className = 'live-stats';
+            statsSection.innerHTML = `
+                <h4>Live Session Stats</h4>
+                <p>Active players: ${stats.active_players} | Total games played: ${stats.total_rounds}</p>
+            `;
+
+            const quickStats = document.querySelector('.quick-stats');
+            if (quickStats) {
+                quickStats.appendChild(statsSection);
+            }
+        }
+    } catch (error) {
+        console.log('Could not fetch live stats');
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Time Period Comparison - Interactive Markov Market Analysis{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="page-header">
+        <h1><i class="fas fa-clock"></i> Time Period Comparison</h1>
+        <p>Visualizing how transition probabilities changed across market regimes</p>
+    </section>
+
+    <!-- Key Finding -->
+    <section class="key-finding-periods">
+        <div class="finding-box">
+            <h3>Time Homogeneity Failure</h3>
+            <p>The transition probabilities vary significantly across time periods, violating the time homogeneity
+               assumption required for reliable Markov chain predictions. This explains why the model passes
+               statistical tests but fails in practice.</p>
+        </div>
+    </section>
+
+    <!-- Period Comparison Grid -->
+    <section class="periods-grid" id="periodsGrid">
+        <div class="period-card" data-period="0">
+            <div class="period-header">
+                <h3>Period 1: 2015-2017</h3>
+                <span class="period-dates" id="period0Dates">Loading...</span>
+            </div>
+            <div class="period-events">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Post-recovery period, steady growth</span>
+            </div>
+            <div class="matrix-container">
+                <canvas id="matrix0"></canvas>
+            </div>
+            <div class="key-transitions">
+                <h4>Key Transitions</h4>
+                <div class="transition-stat">
+                    <span>Bull → Bull:</span>
+                    <span class="stat-value" id="bull2bull0">-</span>
+                </div>
+                <div class="transition-stat">
+                    <span>Bear → Bull:</span>
+                    <span class="stat-value" id="bear2bull0">-</span>
+                </div>
+                <div class="transition-stat">
+                    <span>Stagnant → Stagnant:</span>
+                    <span class="stat-value" id="stag2stag0">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="period-card" data-period="1">
+            <div class="period-header">
+                <h3>Period 2: 2017-2019</h3>
+                <span class="period-dates" id="period1Dates">Loading...</span>
+            </div>
+            <div class="period-events">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Trade tensions, volatility increase</span>
+            </div>
+            <div class="matrix-container">
+                <canvas id="matrix1"></canvas>
+            </div>
+            <div class="key-transitions">
+                <h4>Key Transitions</h4>
+                <div class="transition-stat">
+                    <span>Bull → Bull:</span>
+                    <span class="stat-value" id="bull2bull1">-</span>
+                </div>
+                <div class="transition-stat">
+                    <span>Bear → Bull:</span>
+                    <span class="stat-value" id="bear2bull1">-</span>
+                </div>
+                <div class="transition-stat">
+                    <span>Stagnant → Stagnant:</span>
+                    <span class="stat-value" id="stag2stag1">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="period-card" data-period="2">
+            <div class="period-header">
+                <h3>Period 3: 2019-2022</h3>
+                <span class="period-dates" id="period2Dates">Loading...</span>
+            </div>
+            <div class="period-events">
+                <i class="fas fa-calendar-alt"></i>
+                <span>COVID-19 pandemic, extreme volatility</span>
+            </div>
+            <div class="matrix-container">
+                <canvas id="matrix2"></canvas>
+            </div>
+            <div class="key-transitions">
+                <h4>Key Transitions</h4>
+                <div class="transition-stat">
+                    <span>Bull → Bull:</span>
+                    <span class="stat-value" id="bull2bull2">-</span>
+                </div>
+                <div class="transition-stat">
+                    <span>Bear → Bull:</span>
+                    <span class="stat-value" id="bear2bull2">-</span>
+                </div>
+                <div class="transition-stat">
+                    <span>Stagnant → Stagnant:</span>
+                    <span class="stat-value" id="stag2stag2">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="period-card" data-period="3">
+            <div class="period-header">
+                <h3>Period 4: 2022-2024</h3>
+                <span class="period-dates" id="period3Dates">Loading...</span>
+            </div>
+            <div class="period-events">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Inflation concerns, rate hikes</span>
+            </div>
+            <div class="matrix-container">
+                <canvas id="matrix3"></canvas>
+            </div>
+            <div class="key-transitions">
+                <h4>Key Transitions</h4>
+                <div class="transition-stat">
+                    <span>Bull → Bull:</span>
+                    <span class="stat-value" id="bull2bull3">-</span>
+                </div>
+                <div class="transition-stat">
+                    <span>Bear → Bull:</span>
+                    <span class="stat-value" id="bear2bull3">-</span>
+                </div>
+                <div class="transition-stat">
+                    <span>Stagnant → Stagnant:</span>
+                    <span class="stat-value" id="stag2stag3">-</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Analysis -->
+    <section class="comparison-analysis">
+        <h3>Comparative Analysis</h3>
+        <div class="analysis-grid">
+            <div class="analysis-card">
+                <h4>Maximum Variation</h4>
+                <p id="maxVariation">Analyzing transition probability ranges...</p>
+            </div>
+            <div class="analysis-card">
+                <h4>Stability Pattern</h4>
+                <p id="stabilityPattern">Identifying stable vs volatile periods...</p>
+            </div>
+            <div class="analysis-card">
+                <h4>Regime Changes</h4>
+                <p id="regimeChanges">Detecting structural breaks in market behavior...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed View Modal -->
+    <div id="detailModal" class="modal" style="display: none;">
+        <div class="modal-content large">
+            <span class="close" onclick="closeDetailModal()">&times;</span>
+            <h2 id="modalTitle">Period Details</h2>
+            <div class="modal-body">
+                <div class="detail-matrix">
+                    <canvas id="detailMatrix"></canvas>
+                </div>
+                <div class="detail-stats" id="detailStats">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="loading-indicator">
+        <div class="loader"></div>
+        <p>Loading period data...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/periods.js') }}"></script>
+{% endblock %}
