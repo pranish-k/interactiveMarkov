@@ -1,7 +1,30 @@
-echo "# interactiveMarkov" >> README.md
-git init
-git add README.md
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/pranish-k/interactiveMarkov.git
-git push -u origin main
+GitHub Repository: interactiveMarkov
+Created: 2025-11-08
+Status: Ready to push to GitHub
+
+Repository has been initialized locally with all code committed.
+To push to GitHub:
+
+1. Create a new repository on GitHub.com:
+   - Go to: https://github.com/new
+   - Repository name: interactiveMarkov
+   - Description: Interactive Markov Market Analysis Web Application
+   - Make it Public
+   - DO NOT initialize with README (we already have one)
+   - Click "Create repository"
+
+2. After creating the repository, run these commands:
+   git remote add origin https://github.com/[your-username]/interactiveMarkov.git
+   git branch -M main
+   git push -u origin main
+
+3. Repository will be available at:
+   https://github.com/[your-username]/interactiveMarkov
+
+Project Details:
+- Interactive Flask web app for Markov analysis of S&P 500
+- Conference presentation tool
+- Features: Parameter Explorer, Prediction Game, Time Period Comparison
+- Author: Pranish Khanal
+- Faculty Sponsor: Prof. Kenneth McMurdy
+- Institution: Ramapo College
