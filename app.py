@@ -320,10 +320,10 @@ def server_error(error):
     return render_template('500.html'), 500
 
 
-if __name__ == '__main__':
-    # Initialize data on startup
-    initialize_data()
+# Initialize data on startup (runs even with gunicorn)
+initialize_data()
 
+if __name__ == '__main__':
     # Get local IP for display
     local_ip = get_local_ip()
     print(f"\n{'='*60}")
