@@ -11,39 +11,83 @@
 
     <!-- Parameter Controls -->
     <section class="parameter-controls">
-        <div class="controls-card">
-            <h3>Threshold Parameters</h3>
-            <div class="info-box">
-                <i class="fas fa-info-circle"></i>
-                <p>Market states are classified based on weekly returns: Bull (positive above threshold),
-                   Bear (negative below threshold), and Stagnant (in between).</p>
-            </div>
-
-            <div class="slider-container">
-                <label for="bullThreshold">
-                    Bull Market Threshold:
-                    <span id="bullValue" class="threshold-value">1.5%</span>
-                </label>
-                <input type="range" id="bullThreshold" min="0.5" max="3.0" step="0.1" value="1.5">
-                <div class="slider-labels">
-                    <span>0.5%</span>
-                    <span>3.0%</span>
+        <div class="controls-card elegant">
+            <h3><i class="fas fa-sliders-h"></i> Threshold Parameters</h3>
+            <div class="info-box-elegant">
+                <div class="info-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="info-content">
+                    <strong>How it works:</strong> Market states are classified based on weekly returns.
+                    <ul class="info-list">
+                        <li><span class="bull-dot"></span> <strong>Bull</strong> = Returns above bull threshold</li>
+                        <li><span class="bear-dot"></span> <strong>Bear</strong> = Returns below bear threshold</li>
+                        <li><span class="stag-dot"></span> <strong>Stagnant</strong> = Returns in between</li>
+                    </ul>
                 </div>
             </div>
 
-            <div class="slider-container">
-                <label for="bearThreshold">
-                    Bear Market Threshold:
-                    <span id="bearValue" class="threshold-value">-1.5%</span>
-                </label>
-                <input type="range" id="bearThreshold" min="-3.0" max="-0.5" step="0.1" value="-1.5">
-                <div class="slider-labels">
-                    <span>-3.0%</span>
-                    <span>-0.5%</span>
+            <!-- Bull Threshold Slider -->
+            <div class="slider-container-elegant">
+                <div class="slider-header">
+                    <label for="bullThreshold">
+                        <i class="fas fa-arrow-trend-up bull-icon"></i>
+                        Bull Market Threshold
+                    </label>
+                    <span id="bullValue" class="threshold-value-elegant bull-value">1.5%</span>
+                </div>
+                <div class="slider-track-container">
+                    <input type="range" id="bullThreshold" class="slider-elegant bull-slider"
+                           min="0.5" max="3.0" step="0.1" value="1.5">
+                    <div class="slider-progress bull-progress" id="bullProgress"></div>
+                </div>
+                <div class="slider-labels-elegant">
+                    <span>0.5%<br><small>Sensitive</small></span>
+                    <span>1.75%<br><small>Moderate</small></span>
+                    <span>3.0%<br><small>Conservative</small></span>
                 </div>
             </div>
 
-            <button id="updateAnalysis" class="btn btn-primary">
+            <!-- Bear Threshold Slider -->
+            <div class="slider-container-elegant">
+                <div class="slider-header">
+                    <label for="bearThreshold">
+                        <i class="fas fa-arrow-trend-down bear-icon"></i>
+                        Bear Market Threshold
+                    </label>
+                    <span id="bearValue" class="threshold-value-elegant bear-value">-1.5%</span>
+                </div>
+                <div class="slider-track-container">
+                    <input type="range" id="bearThreshold" class="slider-elegant bear-slider"
+                           min="-3.0" max="-0.5" step="0.1" value="-1.5">
+                    <div class="slider-progress bear-progress" id="bearProgress"></div>
+                </div>
+                <div class="slider-labels-elegant">
+                    <span>-3.0%<br><small>Conservative</small></span>
+                    <span>-1.75%<br><small>Moderate</small></span>
+                    <span>-0.5%<br><small>Sensitive</small></span>
+                </div>
+            </div>
+
+            <!-- Current Range Display -->
+            <div class="range-display">
+                <div class="range-visual">
+                    <div class="range-section bear-section">
+                        <span class="range-label">Bear</span>
+                        <span class="range-value" id="bearRangeDisplay">≤ -1.5%</span>
+                    </div>
+                    <div class="range-section stag-section">
+                        <span class="range-label">Stagnant</span>
+                        <span class="range-value" id="stagRangeDisplay">-1.5% to 1.5%</span>
+                    </div>
+                    <div class="range-section bull-section">
+                        <span class="range-label">Bull</span>
+                        <span class="range-value" id="bullRangeDisplay">≥ 1.5%</span>
+                    </div>
+                </div>
+            </div>
+
+            <button id="updateAnalysis" class="btn btn-primary elegant-btn">
                 <i class="fas fa-sync-alt"></i> Update Analysis
             </button>
         </div>
@@ -52,44 +96,81 @@
     <!-- Results Dashboard -->
     <section class="results-dashboard">
         <!-- State Distribution -->
-        <div class="result-card">
-            <h3>State Distribution</h3>
-            <canvas id="stateChart"></canvas>
-            <div id="stateStats" class="stats-text"></div>
+        <div class="result-card elegant-card">
+            <div class="card-header-elegant">
+                <i class="fas fa-chart-pie"></i>
+                <h3>State Distribution</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="stateChart"></canvas>
+            </div>
+            <div id="stateStats" class="stats-text-elegant"></div>
         </div>
 
         <!-- Transition Matrix -->
-        <div class="result-card">
-            <h3>Transition Matrix</h3>
-            <canvas id="matrixChart"></canvas>
-            <div id="matrixStats" class="stats-text"></div>
+        <div class="result-card elegant-card">
+            <div class="card-header-elegant">
+                <i class="fas fa-table"></i>
+                <h3>Transition Matrix</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="matrixChart"></canvas>
+            </div>
+            <div id="matrixStats" class="stats-text-elegant"></div>
         </div>
 
         <!-- Test Results -->
-        <div class="result-card">
-            <h3>Statistical Tests</h3>
-            <div id="testResults" class="test-results">
-                <div class="test-item">
-                    <span class="test-label">Markov Property (χ² test):</span>
-                    <span id="markovResult" class="test-value">-</span>
+        <div class="result-card elegant-card">
+            <div class="card-header-elegant">
+                <i class="fas fa-flask"></i>
+                <h3>Statistical Tests</h3>
+            </div>
+            <div id="testResults" class="test-results-elegant">
+                <div class="test-item-elegant">
+                    <div class="test-label-elegant">
+                        <i class="fas fa-check-circle"></i>
+                        Markov Property
+                    </div>
+                    <div class="test-value-elegant" id="markovResult">
+                        <span class="loading-dots">Loading...</span>
+                    </div>
+                    <div class="test-description">χ² independence test</div>
                 </div>
-                <div class="test-item">
-                    <span class="test-label">Stationary Distribution:</span>
-                    <div id="stationaryDist" class="test-value">-</div>
+                <div class="test-item-elegant">
+                    <div class="test-label-elegant">
+                        <i class="fas fa-balance-scale"></i>
+                        Stationary Distribution
+                    </div>
+                    <div class="test-value-elegant" id="stationaryDist">
+                        <span class="loading-dots">Loading...</span>
+                    </div>
+                    <div class="test-description">Long-run probabilities</div>
                 </div>
-                <div class="test-item">
-                    <span class="test-label">Prediction Accuracy:</span>
-                    <span id="accuracyResult" class="test-value">-</span>
+                <div class="test-item-elegant">
+                    <div class="test-label-elegant">
+                        <i class="fas fa-bullseye"></i>
+                        Prediction Accuracy
+                    </div>
+                    <div class="test-value-elegant" id="accuracyResult">
+                        <span class="loading-dots">Loading...</span>
+                    </div>
+                    <div class="test-description">Out-of-sample validation</div>
                 </div>
             </div>
         </div>
 
         <!-- Key Insights -->
-        <div class="result-card full-width">
-            <h3>Key Insights</h3>
-            <div id="insights" class="insights-box">
-                <p>Adjust the thresholds and click "Update Analysis" to see how different market state
-                   definitions affect the Markov chain properties and prediction accuracy.</p>
+        <div class="result-card elegant-card full-width">
+            <div class="card-header-elegant">
+                <i class="fas fa-lightbulb"></i>
+                <h3>Key Insights</h3>
+            </div>
+            <div id="insights" class="insights-box-elegant">
+                <div class="insight-placeholder">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Adjust the thresholds and click "Update Analysis" to see how different market state
+                       definitions affect the Markov chain properties and prediction accuracy.</p>
+                </div>
             </div>
         </div>
     </section>

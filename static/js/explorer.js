@@ -16,17 +16,32 @@ function initializeExplorer() {
     const bullValue = document.getElementById('bullValue');
     const bearValue = document.getElementById('bearValue');
 
-    // Update display values
+    // Update display values and range visual
     bullSlider.addEventListener('input', function() {
         bullValue.textContent = this.value + '%';
+        updateRangeDisplay();
     });
 
     bearSlider.addEventListener('input', function() {
         bearValue.textContent = this.value + '%';
+        updateRangeDisplay();
     });
 
     // Update button listener
     document.getElementById('updateAnalysis').addEventListener('click', updateAnalysis);
+
+    // Initialize range display
+    updateRangeDisplay();
+}
+
+function updateRangeDisplay() {
+    const bullThreshold = parseFloat(document.getElementById('bullThreshold').value);
+    const bearThreshold = parseFloat(document.getElementById('bearThreshold').value);
+
+    // Update range display text
+    document.getElementById('bearRangeDisplay').textContent = `≤ ${bearThreshold}%`;
+    document.getElementById('stagRangeDisplay').textContent = `${bearThreshold}% to ${bullThreshold}%`;
+    document.getElementById('bullRangeDisplay').textContent = `≥ ${bullThreshold}%`;
 }
 
 async function loadBaseAnalysis() {
@@ -308,37 +323,98 @@ function displayStationaryDistribution(statDist) {
 function updateInsights(data, bullThreshold, bearThreshold) {
     const insightsBox = document.getElementById('insights');
 
-    let insights = '<h4>Analysis Results:</h4><ul>';
-
-    // Threshold insights
-    insights += `<li>With bull threshold at ${bullThreshold}% and bear threshold at ${bearThreshold}%:</li>`;
+    let insights = '<div class="insights-content">';
+    insights += '<div class="insight-item highlight">';
+    insights += `<i class="fas fa-chart-line"></i>`;
+    insights += `<div><strong>Threshold Configuration:</strong> Bull ≥ ${bullThreshold}%, Bear ≤ ${bearThreshold}%</div>`;
+    insights += '</div>';
 
     // Markov property
     if (data.chi_square_results && data.chi_square_results.Lag_2) {
         const passes = data.chi_square_results.Lag_2.p_value > 0.05;
-        insights += `<li>The Markov property ${passes ? 'holds' : 'does not hold'},
-                     indicating the market ${passes ? 'has' : 'lacks'} one-week memory.</li>`;
+        const icon = passes ? 'fa-check-circle' : 'fa-times-circle';
+        const color = passes ? '#2ecc71' : '#e74c3c';
+        insights += `<div class="insight-item">`;
+        insights += `<i class="fas ${icon}" style="color: ${color}"></i>`;
+        insights += `<div><strong>Markov Property:</strong> ${passes ? 'Holds' : 'Does not hold'} - `;
+        insights += `The market ${passes ? 'exhibits one-week memory' : 'lacks short-term memory'} `;
+        insights += `(p = ${data.chi_square_results.Lag_2.p_value.toFixed(3)})</div>`;
+        insights += '</div>';
     }
 
     // Prediction accuracy
     if (data.prediction_accuracy !== undefined) {
-        insights += `<li>Prediction accuracy is ${data.prediction_accuracy}%,
-                     ${data.prediction_accuracy < 40 ? 'demonstrating poor predictive power despite valid statistical properties' :
-                       'showing moderate predictive capability'}.</li>`;
+        const accuracy = data.prediction_accuracy;
+        const icon = accuracy > 40 ? 'fa-star' : 'fa-exclamation-triangle';
+        const color = accuracy > 40 ? '#2ecc71' : accuracy > 30 ? '#f39c12' : '#e74c3c';
+        insights += `<div class="insight-item">`;
+        insights += `<i class="fas ${icon}" style="color: ${color}"></i>`;
+        insights += `<div><strong>Prediction Accuracy:</strong> ${accuracy}% - `;
+        insights += `${accuracy < 40 ? 'Poor predictive power despite statistical validity' : 'Moderate predictive capability'}</div>`;
+        insights += '</div>';
     }
 
     // State distribution
     if (data.state_distribution) {
         const total = Object.values(data.state_distribution).reduce((a, b) => a + b, 0);
         const bullPct = ((data.state_distribution.Bull / total) * 100).toFixed(1);
-        insights += `<li>Bull markets occur ${bullPct}% of the time with these thresholds.</li>`;
+        const bearPct = ((data.state_distribution.Bear / total) * 100).toFixed(1);
+        const stagPct = ((data.state_distribution.Stagnant / total) * 100).toFixed(1);
+        insights += `<div class="insight-item">`;
+        insights += `<i class="fas fa-pie-chart"></i>`;
+        insights += `<div><strong>State Distribution:</strong> Bull ${bullPct}%, Bear ${bearPct}%, Stagnant ${stagPct}%</div>`;
+        insights += '</div>';
     }
 
-    insights += '</ul>';
-    insights += '<p><strong>Key Takeaway:</strong> Regardless of threshold settings, the model consistently shows that while markets exhibit short-term memory (Markov property), changing market dynamics over time prevent accurate predictions.</p>';
+    insights += '<div class="insight-takeaway">';
+    insights += '<i class="fas fa-graduation-cap"></i>';
+    insights += '<div><strong>Key Takeaway:</strong> Regardless of threshold settings, markets exhibit short-term memory (Markov property) but changing dynamics over time prevent accurate long-term predictions (time homogeneity failure).</div>';
+    insights += '</div>';
 
+    insights += '</div>';
     insightsBox.innerHTML = insights;
 }
+
+// Add CSS for insights (inline for quick styling)
+const insightsStyle = document.createElement('style');
+insightsStyle.textContent = `
+    .insights-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .insight-item {
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        border-left: 3px solid var(--accent);
+    }
+    .insight-item.highlight {
+        background: linear-gradient(135deg, #e3f2fd 0%, #f1f8ff 100%);
+        border-left-color: var(--accent);
+    }
+    .insight-item i {
+        font-size: 1.3rem;
+        margin-top: 0.2rem;
+        flex-shrink: 0;
+    }
+    .insight-item div {
+        flex: 1;
+        line-height: 1.6;
+    }
+    .insight-takeaway {
+        background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%);
+        border-left-color: #ffc107 !important;
+        margin-top: 0.5rem;
+    }
+    .insight-takeaway i {
+        color: #f39c12;
+    }
+`;
+document.head.appendChild(insightsStyle);
 
 // Add CSS for matrix table
 const style = document.createElement('style');
